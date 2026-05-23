@@ -1,0 +1,40 @@
+# Dependencies
+node_modules/
+.pnpm-store/
+
+# Turborepo
+.turbo/
+
+# Next.js
+apps/web/.next/
+apps/web/out/
+apps/web/next-env.d.ts
+
+# Foundry
+packages/contracts/out/
+packages/contracts/cache/
+packages/contracts/broadcast/
+packages/contracts/.gas-snapshot
+
+# Env / secrets
+.env
+.env.local
+.env.demo
+.env.*.local
+
+# Internal project docs (PRD, design reviews, planning — not for public distribution)
+docs/
+
+# Build output
+dist/
+coverage/
+
+# Editor / OS
+.DS_Store
+*.log
+.vscode/
+.idea/
+
+# Playwright
+apps/web/test-results/
+apps/web/playwright-report/

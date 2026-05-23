@@ -1,0 +1,27 @@
+[profile.default]
+src = "src"
+out = "out"
+test = "test"
+script = "script"
+libs = ["lib"]
+solc_version = "0.8.24"
+optimizer = true
+optimizer_runs = 200
+# "paris" avoids PUSH0/transient-storage opcodes that some L2s lack.
+# Revisit once Mezo's supported EVM version is confirmed (OQ-01..05).
+evm_version = "paris"
+fs_permissions = [{ access = "read-write", path = "./" }]
+remappings = [
+    "forge-std/=lib/forge-std/src/",
+    "@openzeppelin/contracts/=lib/openzeppelin-contracts/contracts/",
+]
+
+[profile.ci]
+verbosity = 3
+fuzz = { runs = 1000 }
+
+[fmt]
+line_length = 100
+tab_width = 4
+bracket_spacing = true
+int_types = "long"
