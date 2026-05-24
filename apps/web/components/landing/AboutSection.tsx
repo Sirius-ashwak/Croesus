@@ -5,6 +5,8 @@ import Image from "next/image";
 import Link from "next/link";
 import { motion, useReducedMotion, useScroll, useTransform } from "framer-motion";
 import { Reveal } from "@/components/motion/Reveal";
+import ScrollFloat from "@/components/motion/ScrollFloat";
+import TextType from "@/components/motion/TextType";
 
 /**
  * "Why Croesus" — a full-bleed editorial band that reuses the photo's own composition:
@@ -31,7 +33,7 @@ export function AboutSection() {
   return (
     <section
       ref={ref}
-      aria-labelledby="why-croesus"
+      aria-label="Why Croesus"
       className="relative overflow-hidden border-t border-border-subtle"
     >
       <div className="relative min-h-[80vh] md:min-h-[92vh]">
@@ -72,18 +74,36 @@ export function AboutSection() {
                 ◆ Why Croesus
               </span>
             </Reveal>
+            <ScrollFloat
+              containerClassName="mt-6"
+              textClassName="!font-hero !text-4xl md:!text-6xl !font-light !leading-[1.3] !text-left text-text-primary"
+              animationDuration={1.2}
+              ease="power3.out"
+              stagger={0.05}
+              scrollStart="top bottom"
+              scrollEnd="bottom center"
+            >
+              Wealth that holds its ground.
+            </ScrollFloat>
             <Reveal delay={1}>
-              <h2
-                id="why-croesus"
-                className="mt-6 font-hero text-4xl leading-[1.05] text-text-primary md:text-6xl"
-              >
-                Wealth that holds
-                <br />
-                its ground.
-              </h2>
+              <TextType
+                as="p"
+                className="mt-5 font-mono text-sm uppercase tracking-[0.25em] text-gold"
+                text={[
+                  "Keep your Bitcoin.",
+                  "Borrow at 1% fixed.",
+                  "Stream by the second.",
+                  "Never sell a sat.",
+                ]}
+                typingSpeed={95}
+                deletingSpeed={45}
+                pauseDuration={3200}
+                startOnVisible
+                cursorClassName="text-gold"
+              />
             </Reveal>
             <Reveal delay={2}>
-              <p className="mt-7 text-base leading-relaxed text-text-secondary">
+              <p className="mt-6 text-base leading-relaxed text-text-secondary">
                 Croesus, the last king of Lydia, struck the world&rsquo;s first coins of pure gold —
                 and his name has meant fortune ever since. The lesson outlived the empire: real
                 wealth is never spent away, it&rsquo;s put to work.

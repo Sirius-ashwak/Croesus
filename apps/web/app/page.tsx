@@ -4,6 +4,7 @@ import Link from "next/link";
 import { motion } from "framer-motion";
 import { Reveal } from "@/components/motion/Reveal";
 import { AboutSection } from "@/components/landing/AboutSection";
+import { HeroVeil } from "@/components/landing/HeroVeil";
 import { spring, staggerChild, staggerParent } from "@/lib/motion";
 
 const FEATURES = [
@@ -30,12 +31,13 @@ export default function LandingPage() {
   return (
     <div className="flex min-h-screen flex-col">
       {/* Hero */}
-      <main className="flex flex-1 flex-col items-center justify-center px-6 py-24 text-center">
+      <main className="relative isolate flex min-h-screen flex-col items-center justify-center overflow-hidden px-6 py-24 text-center">
+        <HeroVeil />
         <motion.div
           variants={staggerParent}
           initial="hidden"
           animate="visible"
-          className="flex flex-col items-center"
+          className="relative z-10 flex flex-col items-center"
         >
           <motion.span
             variants={staggerChild}
