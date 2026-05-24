@@ -74,33 +74,47 @@ export function AboutSection() {
                 ◆ Why Croesus
               </span>
             </Reveal>
-            <ScrollFloat
-              containerClassName="mt-6"
-              textClassName="!font-hero !text-4xl md:!text-6xl !font-light !leading-[1.3] !text-left text-text-primary"
-              animationDuration={1.2}
-              ease="power3.out"
-              stagger={0.05}
-              scrollStart="top bottom"
-              scrollEnd="bottom center"
-            >
-              Wealth that holds its ground.
-            </ScrollFloat>
+            {/* GSAP-driven effects aren't governed by framer-motion's MotionConfig,
+                so honour reduced motion here with static, content-equivalent markup. */}
+            {reduce ? (
+              <h2 className="mt-6 font-hero text-4xl font-light leading-[1.3] text-text-primary md:text-6xl">
+                Wealth that holds its ground.
+              </h2>
+            ) : (
+              <ScrollFloat
+                containerClassName="mt-6"
+                textClassName="!font-hero !text-4xl md:!text-6xl !font-light !leading-[1.3] !text-left text-text-primary"
+                animationDuration={1.2}
+                ease="power3.out"
+                stagger={0.05}
+                scrollStart="top bottom"
+                scrollEnd="bottom center"
+              >
+                Wealth that holds its ground.
+              </ScrollFloat>
+            )}
             <Reveal delay={1}>
-              <TextType
-                as="p"
-                className="mt-5 font-mono text-sm uppercase tracking-[0.25em] text-gold"
-                text={[
-                  "Keep your Bitcoin.",
-                  "Borrow at 1% fixed.",
-                  "Stream by the second.",
-                  "Never sell a sat.",
-                ]}
-                typingSpeed={95}
-                deletingSpeed={45}
-                pauseDuration={3200}
-                startOnVisible
-                cursorClassName="text-gold"
-              />
+              {reduce ? (
+                <p className="mt-5 font-mono text-sm uppercase tracking-[0.25em] text-gold">
+                  Keep your Bitcoin. Borrow at 1% fixed. Stream by the second. Never sell a sat.
+                </p>
+              ) : (
+                <TextType
+                  as="p"
+                  className="mt-5 font-mono text-sm uppercase tracking-[0.25em] text-gold"
+                  text={[
+                    "Keep your Bitcoin.",
+                    "Borrow at 1% fixed.",
+                    "Stream by the second.",
+                    "Never sell a sat.",
+                  ]}
+                  typingSpeed={95}
+                  deletingSpeed={45}
+                  pauseDuration={3200}
+                  startOnVisible
+                  cursorClassName="text-gold"
+                />
+              )}
             </Reveal>
             <Reveal delay={2}>
               <p className="mt-6 text-base leading-relaxed text-text-secondary">

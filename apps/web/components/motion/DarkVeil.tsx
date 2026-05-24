@@ -134,6 +134,7 @@ export default function DarkVeil({
 
     const start = performance.now();
     let frame = 0;
+    let onScreen = true;
 
     const loop = () => {
       program.uniforms.uTime.value = ((performance.now() - start) / 1000) * speed;
@@ -146,11 +147,41 @@ export default function DarkVeil({
       frame = requestAnimationFrame(loop);
     };
 
-    loop();
+    // This is a heavy per-pixel shader; only run it while the canvas is actually
+    // on-screen and the tab is visible (frame === 0 means currently paused).
+    const play = () => {
+      if (!frame && onScreen && !document.hidden) frame = requestAnimationFrame(loop);
+    };
+    const pause = () => {
+      if (frame) {
+        cancelAnimationFrame(frame);
+        frame = 0;
+      }
+    };
+
+    const io = new IntersectionObserver(([entry]) => {
+      onScreen = entry.isIntersecting;
+      if (onScreen) play();
+      else pause();
+    });
+    io.observe(canvas);
+
+    const onVisibility = () => {
+      if (document.hidden) pause();
+      else play();
+    };
+    document.addEventListener('visibilitychange', onVisibility);
+
+    play();
 
     return () => {
-      cancelAnimationFrame(frame);
+      pause();
+      io.disconnect();
+      document.removeEventListener('visibilitychange', onVisibility);
       window.removeEventListener('resize', resize);
+      // Release the GL context so StrictMode/Fast-Refresh remounts don't exhaust
+      // the browser's active-WebGL-context limit.
+      gl.getExtension('WEBGL_lose_context')?.loseContext();
     };
   }, [hueShift, noiseIntensity, scanlineIntensity, speed, scanlineFrequency, warpAmount, resolutionScale]);
   return <canvas ref={ref} className="darkveil-canvas" />;

@@ -86,16 +86,19 @@ const TextType = ({
   }, [startOnVisible]);
 
   useEffect(() => {
-    if (showCursor && cursorRef.current) {
-      gsap.set(cursorRef.current, { opacity: 1 });
-      gsap.to(cursorRef.current, {
-        opacity: 0,
-        duration: cursorBlinkDuration,
-        repeat: -1,
-        yoyo: true,
-        ease: 'power2.inOut'
-      });
-    }
+    if (!showCursor || !cursorRef.current) return;
+    gsap.set(cursorRef.current, { opacity: 1 });
+    const blink = gsap.to(cursorRef.current, {
+      opacity: 0,
+      duration: cursorBlinkDuration,
+      repeat: -1,
+      yoyo: true,
+      ease: 'power2.inOut'
+    });
+    // Kill the infinite tween on unmount so it doesn't linger in GSAP's ticker.
+    return () => {
+      blink.kill();
+    };
   }, [showCursor, cursorBlinkDuration]);
 
   useEffect(() => {
