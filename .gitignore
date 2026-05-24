@@ -21,14 +21,15 @@ packages/contracts/.gas-snapshot
 **/DEPLOYER_PRIVATE_KEY=*
 .env
 
-# Env / secrets
+# Env / secrets — ignore all dotenv, then allow the public (no-secret) templates
 .env
 .env.local
 .env.demo
-.env.anvil
 .env.*
-!.env.example
 .env.*.local
+!.env.example
+!.env.anvil
+!.env.mezo
 
 # Internal project docs
 docs/
