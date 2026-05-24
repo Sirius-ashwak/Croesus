@@ -14,7 +14,12 @@ apps/web/next-env.d.ts
 packages/contracts/out/
 packages/contracts/cache/
 packages/contracts/broadcast/
+broadcast/
 packages/contracts/.gas-snapshot
+
+# Never commit private keys / deploy env
+**/DEPLOYER_PRIVATE_KEY=*
+.env
 
 # Env / secrets
 .env
