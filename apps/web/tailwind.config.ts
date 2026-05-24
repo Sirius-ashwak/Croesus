@@ -32,7 +32,7 @@ const config: Config = {
         text: {
           primary: "#F0F0F0",
           secondary: "#888888",
-          tertiary: "#444444",
+          tertiary: "#6E6E6E",
         },
         safe: "#22C55E",
         warning: "#EAB308",

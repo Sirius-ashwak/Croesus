@@ -2,6 +2,7 @@
 
 import { calculateRunway, type RunwayInputs } from "@/lib/runway";
 import { Tooltip } from "@/components/ui/Tooltip";
+import { AnimatedNumber } from "@/components/motion/AnimatedNumber";
 import { cn, formatUSD } from "@/lib/utils";
 
 /** Current-state runway figure (REQ-RWY-01) with semantic color + edge-case copy. */
@@ -30,24 +31,29 @@ export function RunwayWidget({ inputs }: { inputs: RunwayInputs }) {
         <span className="text-[10px] uppercase tracking-[0.2em] text-text-secondary">Runway</span>
         <Tooltip label="How long your unused borrowing headroom lasts at the current monthly burn plus 1% interest. Conservative: it ignores MUSD already sitting in the vault." />
       </div>
-      <div className={cn("font-mono text-5xl font-bold leading-none", color)}>{r.display}</div>
+      <div className={cn("font-mono text-5xl font-bold leading-none transition-colors duration-300", color)}>
+        {r.display}
+      </div>
       <p className="mt-2 text-sm text-text-secondary">{subtitle}</p>
 
       <div className="mt-5 space-y-1 border-t border-border-subtle pt-4 text-sm">
-        <Row label="Available credit" value={formatUSD(r.availableCredit)} />
-        <Row label="Monthly burn" value={`${formatUSD(inputs.monthlyBurn)} / mo`} />
-        <Row label="Monthly interest (1%)" value={`${formatUSD(r.monthlyInterestCost)} / mo`} />
-        <Row label="Total monthly cost" value={`${formatUSD(r.totalMonthlyCost)} / mo`} />
+        <Row label="Available credit" value={r.availableCredit} />
+        <Row label="Monthly burn" value={inputs.monthlyBurn} suffix=" / mo" />
+        <Row label="Monthly interest (1%)" value={r.monthlyInterestCost} suffix=" / mo" />
+        <Row label="Total monthly cost" value={r.totalMonthlyCost} suffix=" / mo" />
       </div>
     </div>
   );
 }
 
-function Row({ label, value }: { label: string; value: string }) {
+function Row({ label, value, suffix }: { label: string; value: number; suffix?: string }) {
   return (
     <div className="flex items-center justify-between">
       <span className="text-text-secondary">{label}</span>
-      <span className="font-mono text-text-primary">{value}</span>
+      <span className="font-mono text-text-primary">
+        <AnimatedNumber value={value} format={formatUSD} />
+        {suffix}
+      </span>
     </div>
   );
 }

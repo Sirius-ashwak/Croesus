@@ -11,6 +11,9 @@ export function parseTxError(err: unknown): string {
   if (msg.includes("insufficient funds") || msg.includes("exceeds balance") || msg.includes("transfer amount exceeds")) {
     return "You don't have enough tokens in your wallet.";
   }
+  if (msg.includes("already registered")) {
+    return "This wallet already has a treasury.";
+  }
   if (msg.includes("below min ratio")) {
     return "That would push your collateral ratio below the 150% floor.";
   }

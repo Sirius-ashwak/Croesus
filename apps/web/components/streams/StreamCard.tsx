@@ -20,6 +20,12 @@ const HEALTH_DOT: Record<string, string> = {
   danger: "bg-danger",
 };
 
+const HEALTH_TEXT: Record<string, string> = {
+  safe: "text-safe",
+  warning: "text-warning",
+  danger: "text-danger",
+};
+
 export function StreamCard({
   stream,
   vaultMusdPool,
@@ -79,7 +85,13 @@ export function StreamCard({
       <div className="mb-4 flex items-start justify-between">
         <div>
           <div className="flex items-center gap-2">
-            <span className={cn("h-2 w-2 rounded-full", HEALTH_DOT[health])} title={`~${formatNumber(monthsCovered, 1)} months funded`} />
+            <span
+              className={cn("inline-flex items-center gap-1 font-mono text-[10px]", HEALTH_TEXT[health])}
+              title={`Funding health: ${health}`}
+            >
+              <span className={cn("h-2 w-2 rounded-full", HEALTH_DOT[health])} aria-hidden />
+              {Number.isFinite(monthsCovered) ? `${formatNumber(monthsCovered, 1)}mo funded` : "fully funded"}
+            </span>
             <span className="font-mono text-sm text-text-primary">{truncateAddress(stream.recipient)}</span>
             <StatusBadge status={stream.status} />
           </div>
@@ -95,12 +107,12 @@ export function StreamCard({
         <div>
           <div className="text-[10px] uppercase tracking-[0.15em] text-text-secondary">Claimable now</div>
           <div className={cn("font-mono text-xl font-semibold", accruing ? "text-gold" : "text-text-primary")}>
-            ${formatNumber(claimable, 4)}
+            {formatUSD(claimable, { minimumFractionDigits: 2, maximumFractionDigits: 4 })}
           </div>
         </div>
         <div>
           <div className="text-[10px] uppercase tracking-[0.15em] text-text-secondary">Streamed to date</div>
-          <div className="font-mono text-xl font-semibold text-text-primary">${formatNumber(streamed, 4)}</div>
+          <div className="font-mono text-xl font-semibold text-text-primary">{formatUSD(streamed, { minimumFractionDigits: 2, maximumFractionDigits: 4 })}</div>
         </div>
       </div>
 

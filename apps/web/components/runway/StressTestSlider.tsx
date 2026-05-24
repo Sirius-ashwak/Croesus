@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
+import { AnimatePresence, motion } from "framer-motion";
 import type { RunwayInputs } from "@/lib/runway";
 import { calculateStress } from "@/lib/stressTest";
 import { liquidationPrice, marginCallPrice } from "@/lib/vaultMath";
@@ -142,15 +143,31 @@ export function StressTestSlider({ inputs }: { inputs: RunwayInputs }) {
       </div>
 
       {/* Banners */}
-      {s.isLiquidation ? (
-        <div className="croesus-pulse mt-5 rounded border border-danger bg-danger/10 p-3 text-sm text-danger">
-          Mezo would liquidate this position at a BTC price of {formatUSD(liquidationUsd)}.
-        </div>
-      ) : s.isMarginCall ? (
-        <div className="mt-5 rounded border border-warning bg-warning/10 p-3 text-sm text-warning">
-          Action threshold reached at {formatUSD(marginCallUsd)} — add collateral or repay MUSD.
-        </div>
-      ) : null}
+      <AnimatePresence mode="wait">
+        {s.isLiquidation ? (
+          <motion.div
+            key="liq"
+            initial={{ opacity: 0, y: 8, scale: 0.98 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: -8, scale: 0.98 }}
+            transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
+            className="croesus-pulse mt-5 rounded border border-danger bg-danger/10 p-3 text-sm text-danger"
+          >
+            Mezo would liquidate this position at a BTC price of {formatUSD(liquidationUsd)}.
+          </motion.div>
+        ) : s.isMarginCall ? (
+          <motion.div
+            key="mc"
+            initial={{ opacity: 0, y: 8, scale: 0.98 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: -8, scale: 0.98 }}
+            transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
+            className="mt-5 rounded border border-warning bg-warning/10 p-3 text-sm text-warning"
+          >
+            Action threshold reached at {formatUSD(marginCallUsd)} — add collateral or repay MUSD.
+          </motion.div>
+        ) : null}
+      </AnimatePresence>
     </div>
   );
 }

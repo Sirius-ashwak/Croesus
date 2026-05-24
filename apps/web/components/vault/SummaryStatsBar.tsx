@@ -30,7 +30,7 @@ export function SummaryStatsBar() {
         : "danger";
 
   return (
-    <div className="sticky top-0 z-20 -mx-6 mb-6 border-b border-border-subtle bg-bg-base/95 px-6 py-4 backdrop-blur">
+    <div className="-mx-6 mb-6 border-b border-border-subtle bg-bg-base/95 px-6 py-4">
       <div className="grid grid-cols-2 gap-x-6 gap-y-4 md:grid-cols-3 lg:grid-cols-6">
         <Stat
           label="BTC Locked"

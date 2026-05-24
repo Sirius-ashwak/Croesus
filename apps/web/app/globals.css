@@ -89,6 +89,16 @@
     background: #d4af37;
     cursor: pointer;
   }
+
+  /* Keyboard focus rings (WCAG 2.4.7) — sliders removed the default outline. */
+  .croesus-slider:focus-visible::-webkit-slider-thumb,
+  .stress-slider:focus-visible::-webkit-slider-thumb {
+    box-shadow: 0 0 0 4px rgba(212, 175, 55, 0.5);
+  }
+  .croesus-slider:focus-visible::-moz-range-thumb,
+  .stress-slider:focus-visible::-moz-range-thumb {
+    box-shadow: 0 0 0 4px rgba(212, 175, 55, 0.5);
+  }
 }
 
 @keyframes croesus-pulse {
@@ -102,4 +112,12 @@
 }
 .croesus-pulse {
   animation: croesus-pulse 1.6s ease-in-out infinite;
+}
+
+/* Respect reduced-motion for the CSS-driven banner pulse (motion components are
+   handled by MotionConfig reducedMotion="user"). */
+@media (prefers-reduced-motion: reduce) {
+  .croesus-pulse {
+    animation: none;
+  }
 }

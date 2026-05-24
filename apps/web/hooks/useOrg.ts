@@ -21,7 +21,10 @@ export function useOrg() {
     abi: registryAbi,
     functionName: "isRegistered",
     args: address ? [address] : undefined,
-    query: { enabled: Boolean(address && addresses.registry) },
+    query: { 
+      enabled: Boolean(address && addresses.registry),
+      staleTime: 60_000,
+    },
   });
 
   const isRegistered = Boolean(registered.data);
@@ -31,7 +34,10 @@ export function useOrg() {
     abi: registryAbi,
     functionName: "getOrganization",
     args: address ? [address] : undefined,
-    query: { enabled: Boolean(address && addresses.registry && isRegistered) },
+    query: { 
+      enabled: Boolean(address && addresses.registry && isRegistered),
+      staleTime: 60_000,
+    },
   });
 
   return {

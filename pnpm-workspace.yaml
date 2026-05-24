@@ -2,6 +2,11 @@ packages:
   - "apps/*"
   - "packages/*"
 
+# Skip the pre-run `pnpm install` deps check so `pnpm <script>` (e.g. `pnpm dev`) doesn't
+# abort on the ignored-builds gate. bufferutil/keccak/utf-8-validate are optional native
+# accelerators with pure-JS fallbacks, so not building them is fine.
+verifyDepsBeforeRun: false
+
 # Native build scripts we intentionally allow (Next's ESLint import resolver).
 onlyBuiltDependencies:
   - unrs-resolver
@@ -15,4 +20,5 @@ ignoredBuiltDependencies:
 allowBuilds:
   bufferutil: set this to true or false
   keccak: set this to true or false
+  unrs-resolver: set this to true or false
   utf-8-validate: set this to true or false
