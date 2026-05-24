@@ -73,14 +73,17 @@ contract CroesusVault is ReentrancyGuard {
         emit StreamAuthorized(_stream);
     }
 
+    /// @notice Accepts native BTC returned by Mezo Borrow during a collateral withdrawal.
+    receive() external payable {}
+
     // ─── Core ────────────────────────────────────────────────────────────────
 
-    /// @notice Deposits tBTC collateral into Mezo Borrow.
-    function depositCollateral(uint256 amount) external onlyOwner nonReentrant {
+    /// @notice Deposits native BTC collateral into Mezo Borrow. On Mezo the collateral is the
+    ///         chain's native asset (BTC), supplied as msg.value — there is no ERC-20 transfer.
+    function depositCollateral(uint256 amount) external payable onlyOwner nonReentrant {
         require(amount > 0, "Croesus: zero amount");
-        IERC20(tbtcToken).safeTransferFrom(owner, address(this), amount);
-        IERC20(tbtcToken).forceApprove(mezoBorrow, amount);
-        IMezoBorrow(mezoBorrow).depositCollateral(amount);
+        require(msg.value == amount, "Croesus: value != amount");
+        IMezoBorrow(mezoBorrow).depositCollateral{value: amount}(amount);
         emit CollateralDeposited(owner, amount, getCollateralRatio());
     }
 
@@ -103,12 +106,13 @@ contract CroesusVault is ReentrancyGuard {
         emit MUSDRepaid(owner, amount, getCollateralRatio());
     }
 
-    /// @notice Withdraws tBTC collateral, keeping the position at/above the 150% floor.
+    /// @notice Withdraws native BTC collateral, keeping the position at/above the 150% floor.
     function withdrawCollateral(uint256 amount) external onlyOwner nonReentrant {
         require(amount > 0, "Croesus: zero amount");
         require(amount <= getMaxWithdrawable(), "Croesus: would breach min ratio");
         IMezoBorrow(mezoBorrow).withdrawCollateral(amount);
-        IERC20(tbtcToken).safeTransfer(owner, amount);
+        (bool ok,) = owner.call{value: amount}("");
+        require(ok, "Croesus: BTC transfer failed");
         emit CollateralWithdrawn(owner, amount, getCollateralRatio());
     }
 
@@ -160,6 +164,18 @@ contract CroesusVault is ReentrancyGuard {
     /// @return btcPrice Current BTC/USD price from the oracle (8 decimals).
     function getBTCPrice() public view returns (uint256 btcPrice) {
         return _btcPrice8();
+    }
+
+    /// @return The vault's current collateral held in Mezo Borrow (native BTC, 18 decimals).
+    /// @dev Lets the frontend read position size straight from the vault, without needing the
+    ///      per-org borrow-provider address.
+    function getCollateral() external view returns (uint256) {
+        return _collateral();
+    }
+
+    /// @return The vault's current MUSD debt in Mezo Borrow (18 decimals, incl. accrued interest).
+    function getDebt() external view returns (uint256) {
+        return _debt();
     }
 
     // ─── Internal helpers ──────────────────────────────────────────────────

@@ -9,7 +9,8 @@
     "coverage": "forge coverage",
     "fmt": "forge fmt",
     "snapshot": "forge snapshot",
-    "abi:export": "mkdir -p ../../apps/web/abis && for c in CroesusRegistry CroesusVault CroesusStream MockMUSD MockPyth MockMezoBorrow; do forge inspect $c abi --json > ../../apps/web/abis/$c.json; done",
-    "deploy:local": "forge script script/Deploy.s.sol --rpc-url ${LOCAL_RPC:-http://127.0.0.1:8545} --broadcast -vvvv"
+    "abi:export": "mkdir -p ../../apps/web/abis && for c in CroesusRegistry CroesusVault CroesusStream MockMUSD MockPyth MockMezoBorrow MezoBorrowAdapter; do forge inspect $c abi --json > ../../apps/web/abis/$c.json; done",
+    "deploy:local": "forge script script/Deploy.s.sol --rpc-url ${LOCAL_RPC:-http://127.0.0.1:8545} --broadcast -vvvv",
+    "deploy:mezo": "forge script script/DeployMezo.s.sol --rpc-url ${NEXT_PUBLIC_MEZO_RPC:-https://rpc.test.mezo.org} --broadcast -vvvv"
   }
 }

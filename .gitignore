@@ -25,6 +25,9 @@ packages/contracts/.gas-snapshot
 .env
 .env.local
 .env.demo
+.env.anvil
+.env.*
+!.env.example
 .env.*.local
 
 # Internal project docs

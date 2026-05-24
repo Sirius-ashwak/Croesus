@@ -2,7 +2,7 @@
 
 import { useWriteContract, useWaitForTransactionReceipt } from "wagmi";
 import type { Address } from "viem";
-import { vaultAbi, erc20Abi, registryAbi, addresses } from "@/lib/contracts";
+import { vaultAbi, registryAbi, addresses } from "@/lib/contracts";
 
 /**
  * Vault + registry write actions (PRD §11.3). Each returns a promise resolving to the tx hash;
@@ -12,16 +12,15 @@ export function useVaultActions(vaultAddress?: Address) {
   const { writeContractAsync, data: hash, isPending, reset } = useWriteContract();
   const receipt = useWaitForTransactionReceipt({ hash });
 
-  const approveTbtc = (amount: bigint) =>
-    writeContractAsync({
-      address: addresses.tbtc!,
-      abi: erc20Abi,
-      functionName: "approve",
-      args: [vaultAddress!, amount],
-    });
-
+  // Collateral is native BTC on Mezo — sent as msg.value, no ERC-20 approval step.
   const depositCollateral = (amount: bigint) =>
-    writeContractAsync({ address: vaultAddress!, abi: vaultAbi, functionName: "depositCollateral", args: [amount] });
+    writeContractAsync({
+      address: vaultAddress!,
+      abi: vaultAbi,
+      functionName: "depositCollateral",
+      args: [amount],
+      value: amount,
+    });
 
   const borrowMUSD = (amount: bigint) =>
     writeContractAsync({ address: vaultAddress!, abi: vaultAbi, functionName: "borrowMUSD", args: [amount] });
@@ -36,7 +35,6 @@ export function useVaultActions(vaultAddress?: Address) {
     writeContractAsync({ address: addresses.registry!, abi: registryAbi, functionName: "registerOrganization", args: [name] });
 
   return {
-    approveTbtc,
     depositCollateral,
     borrowMUSD,
     repayMUSD,

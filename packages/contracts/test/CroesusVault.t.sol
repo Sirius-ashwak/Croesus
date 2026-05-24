@@ -15,10 +15,10 @@ contract CroesusVaultTest is Base {
     }
 
     function testDepositCollateral_insufficientBalance_reverts() public {
-        // Approve without minting -> transferFrom fails.
-        tbtc.approve(address(vault), BTC);
+        // No native balance -> sending the collateral value reverts.
+        vm.deal(address(this), 0);
         vm.expectRevert();
-        vault.depositCollateral(BTC);
+        vault.depositCollateral{value: BTC}(BTC);
     }
 
     function testBorrowMUSD_belowMinRatio_reverts() public {
@@ -55,9 +55,9 @@ contract CroesusVaultTest is Base {
         _depositAndBorrow(BTC, BORROW);
         uint256 maxW = vault.getMaxWithdrawable();
         assertGt(maxW, 0, "some collateral withdrawable");
-        uint256 balBefore = tbtc.balanceOf(address(this));
+        uint256 balBefore = address(this).balance;
         vault.withdrawCollateral(maxW);
-        assertEq(tbtc.balanceOf(address(this)), balBefore + maxW, "tBTC returned to owner");
+        assertEq(address(this).balance, balBefore + maxW, "BTC returned to owner");
         // After withdrawing the max, ratio sits at the 150% floor (allow rounding dust).
         assertApproxEqAbs(vault.getCollateralRatio(), vault.CROESUS_MIN_RATIO(), 1e12);
     }

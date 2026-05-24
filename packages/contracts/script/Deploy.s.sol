@@ -35,8 +35,10 @@ contract Deploy is Script {
         MockPyth pyth = new MockPyth();
         pyth.setPrice(BTC_USD_PRICE_ID, int64(int256(uint256(74_800) * 1e8)), -8);
 
-        CroesusRegistry registry =
-            new CroesusRegistry(address(mezo), address(musd), address(tbtc), address(pyth), BTC_USD_PRICE_ID);
+        // Mock mode: mezoOps/mezoTroveManager are zero, so vaults share the MockMezoBorrow.
+        CroesusRegistry registry = new CroesusRegistry(
+            address(mezo), address(0), address(0), address(musd), address(tbtc), address(pyth), BTC_USD_PRICE_ID
+        );
 
         // Seed the deployer with test tBTC so the local UI can open a vault immediately.
         tbtc.mint(deployer, 100e18);

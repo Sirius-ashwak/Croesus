@@ -1,9 +1,9 @@
 "use client";
 
 import { useEffect } from "react";
-import { useAccount, useReadContracts } from "wagmi";
+import { useAccount, useBalance, useReadContracts } from "wagmi";
 import { maxUint256, type Address } from "viem";
-import { erc20Abi, mezoBorrowAbi, vaultAbi, addresses } from "@/lib/contracts";
+import { erc20Abi, vaultAbi, addresses } from "@/lib/contracts";
 import { fromWei, priceFrom8dp } from "@/lib/utils";
 import { collateralValueUSD, healthFromRatio } from "@/lib/vaultMath";
 import type { HealthStatus } from "@/types/croesus";
@@ -28,8 +28,7 @@ export interface VaultData {
   maxWithdrawable: bigint; // tBTC, 18dp
   btcPriceRaw: bigint; // 8dp
   vaultMusdBalance: bigint; // MUSD held by the vault (stream-funding pool), 18dp
-  walletTbtc: bigint; // user wallet tBTC, 18dp
-  tbtcAllowance: bigint; // user -> vault tBTC allowance, 18dp
+  walletTbtc: bigint; // user wallet native BTC balance, 18dp
 
   // Derived human numbers
   collateralBtc: number;
@@ -61,9 +60,11 @@ export function useVault(): VaultData {
   const setVault = useCroesusStore((s) => s.setVault);
 
   const vaultAddress = org?.vault;
-  const enabled = Boolean(
-    vaultAddress && address && addresses.mezoBorrow && addresses.tbtc && addresses.musd,
-  );
+  const enabled = Boolean(vaultAddress && address && addresses.musd);
+
+  // Collateral is the chain's NATIVE asset (BTC) on Mezo, so the user's spendable collateral
+  // balance is their native wallet balance — not an ERC-20.
+  const { data: nativeBalance } = useBalance({ address, query: { enabled, refetchInterval: 30_000 } });
 
   const { data, isLoading, isFetched, refetch } = useReadContracts({
     allowFailure: false,
@@ -75,11 +76,11 @@ export function useVault(): VaultData {
           { address: vaultAddress, abi: vaultAbi, functionName: "getAvailableBorrowCapacity" },
           { address: vaultAddress, abi: vaultAbi, functionName: "getMaxWithdrawable" },
           { address: vaultAddress, abi: vaultAbi, functionName: "getBTCPrice" },
-          { address: addresses.mezoBorrow, abi: mezoBorrowAbi, functionName: "collateralOf", args: [vaultAddress] },
-          { address: addresses.mezoBorrow, abi: mezoBorrowAbi, functionName: "debtOf", args: [vaultAddress] },
+          // Read position straight from the vault (works whether the borrow provider is the
+          // shared mock or a per-org Mezo adapter — no need for its address here).
+          { address: vaultAddress, abi: vaultAbi, functionName: "getCollateral" },
+          { address: vaultAddress, abi: vaultAbi, functionName: "getDebt" },
           { address: addresses.musd, abi: erc20Abi, functionName: "balanceOf", args: [vaultAddress] },
-          { address: addresses.tbtc, abi: erc20Abi, functionName: "balanceOf", args: [address] },
-          { address: addresses.tbtc, abi: erc20Abi, functionName: "allowance", args: [address, vaultAddress] },
         ] as const)
       : [],
     query: { enabled, refetchInterval: 30_000, staleTime: 25_000 },
@@ -95,9 +96,9 @@ export function useVault(): VaultData {
     collateral = 0n,
     debt = 0n,
     vaultMusdBalance = 0n,
-    walletTbtc = 0n,
-    tbtcAllowance = 0n,
   ] = (data as bigint[] | undefined) ?? [];
+
+  const walletTbtc = nativeBalance?.value ?? 0n; // native BTC wallet balance, 18dp
 
   const collateralBtc = fromWei(collateral);
   const debtMusd = fromWei(debt);
@@ -145,7 +146,6 @@ export function useVault(): VaultData {
     btcPriceRaw,
     vaultMusdBalance,
     walletTbtc,
-    tbtcAllowance,
     collateralBtc,
     debtMusd,
     ratioPercent,

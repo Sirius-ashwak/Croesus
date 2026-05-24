@@ -33,18 +33,15 @@ export function DepositCard() {
   const tooLarge = amount > v.walletTbtcBtc;
   const invalid = amount <= 0 || tooSmall || tooLarge;
   const hint = tooSmall
-    ? `Minimum deposit is ${MIN_DEPOSIT_BTC} tBTC`
+    ? `Minimum deposit is ${MIN_DEPOSIT_BTC} BTC`
     : tooLarge
-      ? "You don't have enough tBTC in your wallet"
+      ? "You don't have enough BTC in your wallet"
       : `Wallet balance: ${formatBTC(v.walletTbtcBtc)}`;
 
   async function confirmDeposit() {
     const amountWei = toWei(amount);
-    const needsApproval = v.tbtcAllowance < amountWei;
-    const steps = [
-      ...(needsApproval ? [{ label: "Approving tBTC", send: () => actions.approveTbtc(amountWei) }] : []),
-      { label: "Depositing collateral", send: () => actions.depositCollateral(amountWei) },
-    ];
+    // Native BTC collateral — a single tx, no approval step.
+    const steps = [{ label: "Depositing collateral", send: () => actions.depositCollateral(amountWei) }];
     const ok = await tx.run(steps);
     if (ok) {
       toast.success(`Deposited ${formatBTC(amount)} as collateral.`, {
@@ -61,7 +58,7 @@ export function DepositCard() {
       <AmountField
         value={input}
         onChange={setInput}
-        unit="tBTC"
+        unit="BTC"
         onMax={() => setInput(String(v.walletTbtcBtc))}
         hint={hint}
         invalid={tooSmall || tooLarge}

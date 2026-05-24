@@ -12,7 +12,7 @@ contract CroesusRegistryTest is Base {
         (address v, address s) = registry.registerOrganization("Alice DAO");
 
         assertTrue(registry.isRegistered(alice), "registered");
-        CroesusVault av = CroesusVault(v);
+        CroesusVault av = CroesusVault(payable(v));
         assertEq(av.owner(), alice, "vault owner is registrant");
         assertEq(av.streamContract(), s, "vault wired to its stream");
         assertEq(av.mezoBorrow(), address(mezo), "mezo config propagated");

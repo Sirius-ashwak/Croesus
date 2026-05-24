@@ -7,14 +7,16 @@ import {MockERC20} from "./MockERC20.sol";
 
 /**
  * @title MockMezoBorrow
- * @notice Mocks-first stand-in for Mezo Borrow. Holds tBTC collateral and mints/burns
- *         MUSD to represent debt, keyed per calling account (a CroesusVault).
- *         This is NOT Mezo's real liquidation/interest logic — it exists so the full
- *         Croesus flow runs locally before the real addresses land (OQ-01..05).
+ * @notice Mocks-first stand-in for Mezo Borrow. Holds NATIVE collateral (matching Mezo, where
+ *         collateral is native BTC) and mints/burns MUSD to represent debt, keyed per calling
+ *         account (a CroesusVault). This is NOT Mezo's real trove/liquidation/interest logic —
+ *         it exists so the full Croesus flow runs locally on anvil (native gas asset = ETH).
+ * @dev The `tbtc` field is retained only so the constructor/wiring matches the token-based
+ *      deployments; it is no longer used as collateral.
  */
 contract MockMezoBorrow is IMezoBorrow {
     MockERC20 public immutable musd;
-    IERC20 public immutable tbtc;
+    IERC20 public immutable tbtc; // vestigial: collateral is native, not this token
 
     mapping(address => uint256) public collateral;
     mapping(address => uint256) public debt;
@@ -24,9 +26,9 @@ contract MockMezoBorrow is IMezoBorrow {
         tbtc = _tbtc;
     }
 
-    function depositCollateral(uint256 amount) external {
+    function depositCollateral(uint256 amount) external payable {
         require(amount > 0, "Mock: zero amount");
-        require(tbtc.transferFrom(msg.sender, address(this), amount), "Mock: tBTC transfer failed");
+        require(msg.value == amount, "Mock: value != amount");
         collateral[msg.sender] += amount;
     }
 
@@ -48,7 +50,8 @@ contract MockMezoBorrow is IMezoBorrow {
         uint256 c = collateral[msg.sender];
         require(amount <= c, "Mock: over-withdraw");
         collateral[msg.sender] = c - amount;
-        require(tbtc.transfer(msg.sender, amount), "Mock: tBTC transfer failed");
+        (bool ok,) = msg.sender.call{value: amount}("");
+        require(ok, "Mock: BTC transfer failed");
     }
 
     function collateralOf(address account) external view returns (uint256) {

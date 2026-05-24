@@ -46,7 +46,9 @@ export function CreateStreamForm() {
   const monthsCovered = newBurn > 0 ? available / newBurn : Infinity;
   const willExhaust = monthly > 0 && (available <= 0 || monthsCovered < 1);
 
-  const invalid = !recipientValid || monthly <= 0;
+  // Guard against accidental micro-streams (e.g. 0.01 MUSD/mo) that display as $0.
+  const tooSmall = monthly > 0 && monthly < 1;
+  const invalid = !recipientValid || monthly <= 0 || tooSmall;
 
   async function create() {
     if (!org) return;
@@ -129,7 +131,11 @@ export function CreateStreamForm() {
         </div>
       ) : null}
 
-      {willExhaust ? (
+      {tooSmall ? (
+        <p className="mt-3 rounded border border-warning bg-warning/10 p-2.5 text-xs text-warning">
+          That&rsquo;s under 1 MUSD/month and would display as $0. Enter at least 1 MUSD for a meaningful stream.
+        </p>
+      ) : willExhaust ? (
         <p className="mt-3 rounded border border-warning bg-warning/10 p-2.5 text-xs text-warning">
           This stream will exhaust your available MUSD in ~{formatNumber(monthsCovered, 1)} months. Consider
           depositing more collateral or borrowing more first.

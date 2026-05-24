@@ -9,7 +9,9 @@
     "lint": "next lint",
     "test": "vitest run",
     "test:watch": "vitest",
-    "e2e": "playwright test"
+    "e2e": "playwright test",
+    "env:anvil": "node -e \"require('fs').copyFileSync('.env.anvil','.env.local')\"",
+    "env:mezo": "node -e \"require('fs').copyFileSync('.env.mezo','.env.local')\""
   },
   "dependencies": {
     "@rainbow-me/rainbowkit": "^2.2.11",

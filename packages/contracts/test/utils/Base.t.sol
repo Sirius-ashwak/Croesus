@@ -34,9 +34,11 @@ abstract contract Base is Test {
         pyth = new MockPyth();
         _setBtcPrice(74_800);
 
-        registry = new CroesusRegistry(address(mezo), address(musd), address(tbtc), address(pyth), PRICE_ID);
+        // Mock mode: mezoOps/mezoTroveManager are zero, so vaults share the MockMezoBorrow.
+        registry =
+            new CroesusRegistry(address(mezo), address(0), address(0), address(musd), address(tbtc), address(pyth), PRICE_ID);
         (address v, address s) = registry.registerOrganization("Test DAO");
-        vault = CroesusVault(v);
+        vault = CroesusVault(payable(v));
         stream = CroesusStream(s);
     }
 
@@ -45,11 +47,14 @@ abstract contract Base is Test {
         pyth.setPrice(PRICE_ID, int64(int256(usd * 1e8)), -8);
     }
 
-    /// @dev Deposits `btcAmount` tBTC (minted to this contract) and optionally borrows MUSD.
+    /// @dev Funds this contract with `btcAmount` of native BTC and deposits it as collateral,
+    ///      then optionally borrows MUSD. Mezo collateral is native, so there is no token mint.
     function _depositAndBorrow(uint256 btcAmount, uint256 borrowAmount) internal {
-        tbtc.mint(address(this), btcAmount);
-        tbtc.approve(address(vault), btcAmount);
-        vault.depositCollateral(btcAmount);
+        vm.deal(address(this), address(this).balance + btcAmount);
+        vault.depositCollateral{value: btcAmount}(btcAmount);
         if (borrowAmount > 0) vault.borrowMUSD(borrowAmount);
     }
+
+    /// @dev Accept native BTC returned by the vault on withdrawal.
+    receive() external payable {}
 }
