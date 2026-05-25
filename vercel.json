@@ -1,0 +1,9 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "framework": "nextjs",
+  "buildCommand": "pnpm --filter @croesus/web env:mezo && pnpm exec turbo run build --filter=@croesus/web",
+  "outputDirectory": "apps/web/.next",
+  "github": {
+    "silent": true
+  }
+}

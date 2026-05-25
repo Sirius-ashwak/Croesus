@@ -43,7 +43,9 @@ export function StressTestSlider({ inputs }: { inputs: RunwayInputs }) {
   const mcPos = pos(s.marginCallDropPercent);
   const liqPos = pos(s.liquidationDropPercent);
   const thumbPos = pos(drop);
-  const labelPos = Math.max(6, Math.min(94, thumbPos));
+  // Keep the floating price label inside the track: left-align near the start, right-align
+  // near the end, centered in between — otherwise it overflows the edge at rest (0%).
+  const labelShift = thumbPos < 12 ? "0%" : thumbPos > 88 ? "-100%" : "-50%";
 
   const runwayLabel = s.isLiquidation
     ? "LIQUIDATION"
@@ -68,8 +70,8 @@ export function StressTestSlider({ inputs }: { inputs: RunwayInputs }) {
       {/* Live thumb label */}
       <div className="relative mb-2 h-5">
         <span
-          className="absolute -translate-x-1/2 whitespace-nowrap font-mono text-sm text-text-primary"
-          style={{ left: `${labelPos}%` }}
+          className="absolute whitespace-nowrap font-mono text-sm text-text-primary"
+          style={{ left: `${thumbPos}%`, transform: `translateX(${labelShift})` }}
         >
           BTC at {formatUSD(s.simulatedPrice)} <span className="text-text-secondary">(−{drop}%)</span>
         </span>

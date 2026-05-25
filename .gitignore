@@ -13,28 +13,21 @@ apps/web/next-env.d.ts
 # Foundry
 packages/contracts/out/
 packages/contracts/cache/
-packages/contracts/broadcast/
 broadcast/
 packages/contracts/.gas-snapshot
 
-# Never commit private keys / deploy env
-**/DEPLOYER_PRIVATE_KEY=*
+# Env / secrets — ignore all dotenv files + raw keys, allow only the public templates
 .env
-
-# Env / secrets — ignore all dotenv, then allow the public (no-secret) templates
-.env
-.env.local
-.env.demo
 .env.*
-.env.*.local
 !.env.example
 !.env.anvil
 !.env.mezo
+**/DEPLOYER_PRIVATE_KEY=*
 
 # Internal project docs
 docs/
 
-# Claude Code (local config))
+# Claude Code (local config)
 .claude/
 
 # Build output

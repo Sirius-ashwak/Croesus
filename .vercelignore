@@ -1,0 +1,28 @@
+# Vercel only builds the Next.js web app (apps/web). Everything below is either
+# a non-web workspace, build output, or local-only — exclude it from CLI uploads.
+# (Git-based deploys ignore this file, but the turbo --filter in vercel.json
+#  still guarantees only @croesus/web is built.)
+
+# Foundry / Solidity contracts — Vercel has no Foundry toolchain and never builds these.
+packages/contracts/
+
+# Internal docs + scratch UI (already git-ignored)
+docs/
+ui_ex/
+
+# Build output / caches
+.turbo/
+**/.next/
+**/out/
+**/coverage/
+node_modules/
+
+# Tests / reports
+apps/web/test-results/
+apps/web/playwright-report/
+
+# Editor / OS
+.DS_Store
+*.log
+.vscode/
+.idea/
