@@ -1,0 +1,25 @@
+# Render Blueprint — deploys the Croesus Next.js app (apps/web) as a Node web service.
+# Everything runs from the repo root and targets the workspace with `pnpm --filter`,
+# so there is no "root directory" setting to misconfigure.
+# Spec: https://render.com/docs/blueprint-spec
+services:
+  - type: web
+    name: croesus
+    runtime: node
+    plan: free            # free spins down when idle (~50s cold start); bump to "starter" for always-on
+    region: oregon        # or: frankfurt | singapore | ohio | virginia
+    branch: main
+    autoDeploy: true
+    # 1) install workspace  2) bake the Mezo-testnet env (.env.mezo -> .env.local)  3) build only @croesus/web
+    buildCommand: corepack enable && pnpm install && pnpm --filter @croesus/web env:mezo && pnpm --filter @croesus/web build
+    # next start binds to Render's injected $PORT on all interfaces
+    startCommand: pnpm --filter @croesus/web exec next start -p $PORT -H 0.0.0.0
+    healthCheckPath: /
+    envVars:
+      # Next 14 needs Node >=18.17; pin a known-good LTS.
+      - key: NODE_VERSION
+        value: "20.18.0"
+      # Optional: set in the Render dashboard to enable WalletConnect / mobile wallets.
+      # Leave unset -> RainbowKit falls back to injected (browser-extension) wallets.
+      - key: NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID
+        sync: false
